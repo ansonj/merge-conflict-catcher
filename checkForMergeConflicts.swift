@@ -38,20 +38,29 @@ func log(_ message: String, color: LogColor = .blue) {
     print("\(color.terminalString)==> \(message)\(LogColor.black.terminalString)")
 }
 
-func run(gitCommand args: String) -> Int32 {
+struct ProcessCompletionInfo {
+    let exitStatus: Int32
+    let executionTime: TimeInterval
+}
+
+func run(gitCommand args: String) -> ProcessCompletionInfo {
     // https://stackoverflow.com/a/26973384
     let command = "git " + args
     log(command)
     let task = Process()
     task.launchPath = "/usr/bin/env"
     task.arguments = command.split(separator: " ").map { String($0) }
+    let startTime = Date()
     task.launch()
     task.waitUntilExit()
-    return task.terminationStatus
+    let executionTime = Date().timeIntervalSince(startTime)
+    let completionInfo = ProcessCompletionInfo(exitStatus: task.terminationStatus, executionTime: executionTime)
+    return completionInfo
 }
 
 func run(gitCommand args: String, andFailWithDescriptionIfNeeded description: String) {
-    let exitStatus = run(gitCommand: args)
+    let completionInfo = run(gitCommand: args)
+    let exitStatus = completionInfo.exitStatus
     guard exitStatus == 0 else {
         log("\(description) failed with exit status \(exitStatus)")
         exit(exitStatus)
@@ -65,8 +74,8 @@ run(gitCommand: "fetch --jobs=5 --recurse-submodules", andFailWithDescriptionIfN
 var testsComplete: Int = 0
 for branch in branches {
     run(gitCommand: "checkout --detach \(branch.name)", andFailWithDescriptionIfNeeded: "Checkout \(branch.name)")
-    let mergeExitStatus = run(gitCommand: "merge --no-edit origin/\(branch.target)")
-    if mergeExitStatus != 0 {
+    let mergeCompletionInfo = run(gitCommand: "merge --no-edit origin/\(branch.target)")
+    if mergeCompletionInfo.exitStatus != 0 {
         log("Merge conflict detected: \(branch.name) --> \(branch.target)", color: .red)
         mergeSucceeded[branch] = false
         run(gitCommand: "merge --abort", andFailWithDescriptionIfNeeded: "Merge abort")
