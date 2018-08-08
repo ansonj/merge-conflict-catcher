@@ -18,7 +18,8 @@ struct Branch: Hashable {
 }
 
 let branches: [Branch] = [
-    Branch(name: "<#my-fancy-branch#>")
+    Branch(name: "<#my-fancy-branch#>"),
+    Branch(name: "<#my-urgent-hotfix#>", target: "<#release-branch#>")
 ]
 
 // MARK: - End of customizable section
