@@ -82,7 +82,7 @@ run(gitCommand: "fetch --jobs=5 --recurse-submodules", andFailWithDescriptionIfN
 
 var testsComplete: Int = 0
 for branch in branches {
-    run(gitCommand: "checkout --detach \(branch.name)", andFailWithDescriptionIfNeeded: "Checkout \(branch.name)")
+    run(gitCommand: "checkout --detach \(branch.name)", andFailWithDescriptionIfNeeded: "Checkout detached HEAD at \(branch.name)")
     run(gitCommand: "merge --ff-only origin/\(branch.name)", andFailWithDescriptionIfNeeded: "Merge origin/\(branch.name) (fast-forward only) to check for new commits on the remote")
     let mergeCompletionInfo = run(gitCommand: "merge --no-edit origin/\(branch.target)")
     if mergeCompletionInfo.exitStatus != 0 {
