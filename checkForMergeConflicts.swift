@@ -97,7 +97,9 @@ for branch in branches {
     log("Tested \(testsComplete) of \(branches.count) merges...")
 }
 
-let firstBranchWithConflicts: Branch? = branches.filter { mergeResults[$0] == .failed }.first
+let conflicts = branches.filter { mergeResults[$0] == .failed }
+
+let firstBranchWithConflicts: Branch? = conflicts.first
 let branchToResetTo = firstBranchWithConflicts?.name ?? defaultBranch
 run(gitCommand: "checkout \(branchToResetTo)", andFailWithDescriptionIfNeeded: "Checkout \(branchToResetTo)")
 run(gitCommand: "submodule update --init --recursive", andFailWithDescriptionIfNeeded: "Submodule update")
@@ -130,7 +132,7 @@ let printStaleBranchWarning: () -> () = {
 }
 
 if let firstBranchWithConflicts = firstBranchWithConflicts {
-    let conflictCount = branches.filter { mergeResults[$0] == .failed }.count
+    let conflictCount = conflicts.count
     log("Found \(conflictCount) conflict\(conflictCount == 1 ? "" : "s").", color: .red)
     printStaleBranchWarning()
     log("")
