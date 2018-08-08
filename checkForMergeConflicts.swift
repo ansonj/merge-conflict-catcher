@@ -6,7 +6,7 @@ import Foundation
 
 let remote = "origin"
 let defaultBranch = "master"
-let mergeTimeWarningUpperBound: TimeInterval = 3.0
+let mergeTimeWarningUpperBound: TimeInterval = 2.0
 
 struct Branch: Hashable {
     let name: String
