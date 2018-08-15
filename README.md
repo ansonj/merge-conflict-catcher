@@ -5,7 +5,11 @@
 At the moment, the checker script can only be used for one repository at a time (see **Todo** section below).
 
 1. **Setup**
-    1. Clone or download the repo and copy `checkForMergeConflicts.swift` to a place where it's easy to access.
+    1. Clone or download the repo.
+    1. Copy the Swift script to a place where it's easy to access:
+    ```
+    cp ./MergeConflictCatcher/main.swift ~/Developer/checkForMergeConflicts.swift
+    ```
     1. Open `checkForMergeConflicts.swift` and edit the customizable section at the top:
         1. Check the remote name and default branch to make sure they match your repository.
         1. Add the branches you want to check to the array, using the samples as reference. You can specify just the branch name if the branch will merge into your default branch, or you can specify the branch name and its parent branch name.
