@@ -1,5 +1,7 @@
 # Merge Conflict Catcher
 
+![Terminal screenshot showing sample output](sample_output.png "Sample output")
+
 ## Usage
 
 At the moment, the checker script can only be used for one repository at a time (see **Todo** section below).
