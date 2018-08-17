@@ -129,7 +129,8 @@ log("")
 let printStaleBranchWarning: () -> () = {
     let slowMergeCount = mergeResults.values.filter { $0 == .tookALongTime }.count
     if slowMergeCount > 0 {
-        log("At least one merge took longer than \(mergeTimeWarningUpperBound) seconds; consider updating these branches with the latest from their respective parent branches.", color: .yellow)
+        log("At least one merge took longer than \(mergeTimeWarningUpperBound) seconds;", color: .yellow)
+        log("consider updating these branches with the latest from their respective parent branches.", color: .yellow)
     }
 }
 
