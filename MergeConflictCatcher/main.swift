@@ -18,8 +18,10 @@ struct Branch: Hashable {
 }
 
 let branches: [Branch] = [
-    Branch(name: "<#my-fancy-branch#>"),
-    Branch(name: "<#my-urgent-hotfix#>", target: "<#release-branch#>")
+    Branch(name: "my-perfect-branch"),
+    Branch(name: "my-hotfix-branch", target: "release/1.0"),
+    Branch(name: "my-slow-outdated-branch"),
+    Branch(name: "my-conflicting-branch")
 ]
 
 // MARK: - End of customizable section
@@ -47,6 +49,7 @@ struct ProcessCompletionInfo {
 }
 
 func run(gitCommand args: String) -> ProcessCompletionInfo {
+    return ProcessCompletionInfo(exitStatus: 0, executionTime: 0)
     // https://stackoverflow.com/a/26973384
     let command = "git " + args
     log(command)
@@ -62,6 +65,7 @@ func run(gitCommand args: String) -> ProcessCompletionInfo {
 }
 
 func run(gitCommand args: String, andFailWithDescriptionIfNeeded description: String) {
+    return
     let completionInfo = run(gitCommand: args)
     let exitStatus = completionInfo.exitStatus
     guard exitStatus == 0 else {
@@ -78,25 +82,32 @@ enum MergeResult {
 
 var mergeResults = [Branch : MergeResult]()
 
-run(gitCommand: "fetch --jobs=5 --recurse-submodules", andFailWithDescriptionIfNeeded: "Fetch")
+//run(gitCommand: "fetch --jobs=5 --recurse-submodules", andFailWithDescriptionIfNeeded: "Fetch")
 
 var testsComplete: Int = 0
 for branch in branches {
-    run(gitCommand: "checkout --detach \(branch.name)", andFailWithDescriptionIfNeeded: "Checkout detached HEAD at \(branch.name)")
-    run(gitCommand: "merge --ff-only origin/\(branch.name)", andFailWithDescriptionIfNeeded: "Merge origin/\(branch.name) (fast-forward only) to check for new commits on the remote")
-    let mergeCompletionInfo = run(gitCommand: "merge --no-edit origin/\(branch.target)")
-    if mergeCompletionInfo.exitStatus != 0 {
-        log("Merge conflict detected: \(branch.name) --> \(branch.target)", color: .red)
+    if branch.name.contains("conflict") {
         mergeResults[branch] = .failed
-        run(gitCommand: "merge --abort", andFailWithDescriptionIfNeeded: "Merge abort")
-    } else if mergeCompletionInfo.executionTime > mergeTimeWarningUpperBound {
-        log("Merge took \(mergeCompletionInfo.executionTime) seconds, exceeding warning threshold of \(mergeTimeWarningUpperBound) seconds", color: .yellow)
+    } else if branch.name.contains("slow") {
         mergeResults[branch] = .tookALongTime
     } else {
         mergeResults[branch] = .succeeded
     }
-    testsComplete += 1
-    log("Tested \(testsComplete) of \(branches.count) merges...")
+//    run(gitCommand: "checkout --detach \(branch.name)", andFailWithDescriptionIfNeeded: "Checkout detached HEAD at \(branch.name)")
+//    run(gitCommand: "merge --ff-only origin/\(branch.name)", andFailWithDescriptionIfNeeded: "Merge origin/\(branch.name) (fast-forward only) to check for new commits on the remote")
+//    let mergeCompletionInfo = run(gitCommand: "merge --no-edit origin/\(branch.target)")
+//    if mergeCompletionInfo.exitStatus != 0 {
+//        log("Merge conflict detected: \(branch.name) --> \(branch.target)", color: .red)
+//        mergeResults[branch] = .failed
+//        run(gitCommand: "merge --abort", andFailWithDescriptionIfNeeded: "Merge abort")
+//    } else if mergeCompletionInfo.executionTime > mergeTimeWarningUpperBound {
+//        log("Merge took \(mergeCompletionInfo.executionTime) seconds, exceeding warning threshold of \(mergeTimeWarningUpperBound) seconds", color: .yellow)
+//        mergeResults[branch] = .tookALongTime
+//    } else {
+//        mergeResults[branch] = .succeeded
+//    }
+//    testsComplete += 1
+//    log("Tested \(testsComplete) of \(branches.count) merges...")
 }
 
 let conflicts = branches.filter { mergeResults[$0] == .failed }
