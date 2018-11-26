@@ -65,7 +65,7 @@ func run(gitCommand args: String, andFailWithDescriptionIfNeeded description: St
     let completionInfo = run(gitCommand: args)
     let exitStatus = completionInfo.exitStatus
     guard exitStatus == 0 else {
-        log("\(description) failed with exit status \(exitStatus)")
+        log("\(description) failed with exit status \(exitStatus)", color: .red)
         exit(exitStatus)
     }
 }
