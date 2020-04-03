@@ -54,4 +54,4 @@ if someMergeFailed {
 
 - Add support for multiple repositories if possible.
     1. Add a `Repo` struct of some kind that takes an absolute path (must start with `/`) and contains a list of `Branch`es to merge.
-    1. `cd` to each repo and test all the branches as usual. This might not work depending on whether the `cd` persists across `Process` invocations. This also means we might have to lose support for returning you to the first conflict automaticallly, since I doubt the final `cd` to the repository with the conflict would persist outside the Swift script execution.
+    1. `cd` to each repo and test all the branches as usual. This might not work depending on whether the `cd` persists across `Process` invocations. This also means we might have to lose support for returning you to the first conflict automatically, since I doubt the final `cd` to the repository with the conflict would persist outside the Swift script execution.
