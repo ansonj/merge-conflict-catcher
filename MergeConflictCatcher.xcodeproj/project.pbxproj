@@ -96,6 +96,7 @@
 				TargetAttributes = {
 					A343672C21247EA600ABD10C = {
 						CreatedOnToolsVersion = 9.4.1;
+						LastSwiftMigration = 1140;
 					};
 				};
 			};
@@ -248,7 +249,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -258,7 +259,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
