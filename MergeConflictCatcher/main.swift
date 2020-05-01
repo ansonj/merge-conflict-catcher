@@ -5,13 +5,13 @@ import Foundation
 // MARK: - Customize the definitions below
 
 let remote = "origin"
-let defaultBranch = "master"
+let defaultBranchName = "master"
 let mergeTimeWarningUpperBound: TimeInterval = 2.0
 
 struct Branch: Hashable {
     let name: String
     let target: String
-    init(name: String, target: String = defaultBranch) {
+    init(name: String, target: String = defaultBranchName) {
         self.name = name
         self.target = target
     }
@@ -102,7 +102,7 @@ for branch in branches {
 let conflicts = branches.filter { mergeResults[$0] == .failed }
 
 let firstBranchWithConflicts: Branch? = conflicts.first
-let branchToResetTo = firstBranchWithConflicts?.name ?? defaultBranch
+let branchToResetTo = firstBranchWithConflicts?.name ?? defaultBranchName
 run(gitCommand: "checkout \(branchToResetTo)", andFailWithDescriptionIfNeeded: "Checkout \(branchToResetTo)")
 run(gitCommand: "submodule update --init --recursive", andFailWithDescriptionIfNeeded: "Submodule update")
 
@@ -144,5 +144,5 @@ if let firstBranchWithConflicts = firstBranchWithConflicts {
     log("No conflicts detected.")
     printStaleBranchWarning()
     log("")
-    log("Returned to \(defaultBranch) (your default branch).")
+    log("Returned to \(defaultBranchName) (your default branch).")
 }
