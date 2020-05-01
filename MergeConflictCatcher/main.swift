@@ -2,11 +2,9 @@
 
 import Foundation
 
-// MARK: - Customize the definitions below
+// MARK: - Types
 
-let remote = "origin"
-let defaultBranchName = "master"
-let mergeTimeWarningUpperBound: TimeInterval = 2.0
+var defaultBranchName: String
 
 struct Branch: Hashable {
     let name: String
@@ -16,6 +14,12 @@ struct Branch: Hashable {
         self.target = target
     }
 }
+
+// MARK: - Customize the definitions below
+
+let remote = "origin"
+defaultBranchName = "master"
+let mergeTimeWarningUpperBound: TimeInterval = 2.0
 
 let branches: [Branch] = [
     Branch(name: "<#my-fancy-branch#>"),
