@@ -35,6 +35,15 @@ let branches: [Branch] = [
 
 // MARK: - End of customizable section
 
+extension Branch {
+    var remoteName: String {
+        return remote + "/" + name
+    }
+    var remoteTarget: String {
+        return remote + "/" + target
+    }
+}
+
 enum ActualFinalCheckoutState {
     case firstConflict(branch: Branch)
     case defaultBranch
@@ -100,8 +109,8 @@ run(gitCommand: "fetch --jobs=5 --recurse-submodules", andFailWithDescriptionIfN
 var testsComplete: Int = 0
 for branch in branches {
     run(gitCommand: "checkout --detach \(branch.name)", andFailWithDescriptionIfNeeded: "Checkout detached HEAD at \(branch.name)")
-    run(gitCommand: "merge --ff-only origin/\(branch.name)", andFailWithDescriptionIfNeeded: "Merge origin/\(branch.name) (fast-forward only) to check for new commits on the remote")
-    let mergeCompletionInfo = run(gitCommand: "merge --no-edit origin/\(branch.target)")
+    run(gitCommand: "merge --ff-only \(branch.remoteName)", andFailWithDescriptionIfNeeded: "Merge \(branch.remoteName) (fast-forward only) to check for new commits on the remote")
+    let mergeCompletionInfo = run(gitCommand: "merge --no-edit \(branch.remoteTarget)")
     if mergeCompletionInfo.exitStatus != 0 {
         log("Merge conflict detected: \(branch.name) --> \(branch.target)", color: .red)
         mergeResults[branch] = .failed
