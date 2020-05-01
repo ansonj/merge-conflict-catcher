@@ -15,10 +15,17 @@ struct Branch: Hashable {
     }
 }
 
+enum DesiredFinalCheckoutState {
+    case firstConflict
+    case defaultBranch
+    case nothing
+}
+
 // MARK: - Customize the definitions below
 
 let remote = "origin"
 defaultBranchName = "master"
+let desiredFinalState = DesiredFinalCheckoutState.firstConflict
 let mergeTimeWarningUpperBound: TimeInterval = 2.0
 
 let branches: [Branch] = [
@@ -27,6 +34,12 @@ let branches: [Branch] = [
 ]
 
 // MARK: - End of customizable section
+
+enum ActualFinalCheckoutState {
+    case firstConflict(branch: Branch)
+    case defaultBranch
+    case nothing
+}
 
 enum LogColor: Int {
     // https://github.com/mtynior/ColorizeSwift/blob/master/Source/ColorizeSwift.swift
@@ -105,10 +118,31 @@ for branch in branches {
 
 let conflicts = branches.filter { mergeResults[$0] == .failed }
 
-let firstBranchWithConflicts: Branch? = conflicts.first
-let branchToResetTo = firstBranchWithConflicts?.name ?? defaultBranchName
-run(gitCommand: "checkout \(branchToResetTo)", andFailWithDescriptionIfNeeded: "Checkout \(branchToResetTo)")
-run(gitCommand: "submodule update --init --recursive", andFailWithDescriptionIfNeeded: "Submodule update")
+let finalState: ActualFinalCheckoutState
+// Figure out where we're going to end up
+switch (desiredFinalState, conflicts.first) {
+case (.firstConflict, .some(let firstBranchWithConflicts)):
+    finalState = .firstConflict(branch: firstBranchWithConflicts)
+case (.firstConflict, .none):
+    finalState = .defaultBranch
+case (.defaultBranch, _):
+    finalState = .defaultBranch
+case (.nothing, _):
+    finalState = .nothing
+}
+// Checkout if needed
+func reset(toBranchName branchName: String) {
+    run(gitCommand: "checkout \(branchName)", andFailWithDescriptionIfNeeded: "Checkout \(branchName)")
+    run(gitCommand: "submodule update --init --recursive", andFailWithDescriptionIfNeeded: "Submodule update")
+}
+switch finalState {
+case .firstConflict(let branch):
+    reset(toBranchName: branch.name)
+case .defaultBranch:
+    reset(toBranchName: defaultBranchName)
+case .nothing:
+    break
+}
 
 log("")
 log("Results:")
@@ -130,7 +164,7 @@ for branch in branches {
 }
 log("")
 
-let printStaleBranchWarning: () -> () = {
+let printStaleBranchWarningIfNeeded: () -> () = {
     let slowMergeCount = mergeResults.values.filter { $0 == .tookALongTime }.count
     if slowMergeCount > 0 {
         log("At least one merge took longer than \(mergeTimeWarningUpperBound) seconds;", color: .yellow)
@@ -138,15 +172,18 @@ let printStaleBranchWarning: () -> () = {
     }
 }
 
-if let firstBranchWithConflicts = firstBranchWithConflicts {
-    let conflictCount = conflicts.count
-    log("Found \(conflictCount) conflict\(conflictCount == 1 ? "" : "s").", color: .red)
-    printStaleBranchWarning()
-    log("")
-    log("Checked out the first conflict for you to fix: \(LogColor.red.terminalString)\(firstBranchWithConflicts.name)\(LogColor.blue.terminalString) --> \(firstBranchWithConflicts.target)")
+if conflicts.count > 0 {
+    log("Found \(conflicts.count) conflict\(conflicts.count == 1 ? "" : "s").", color: .red)
 } else {
     log("No conflicts detected.")
-    printStaleBranchWarning()
-    log("")
+}
+printStaleBranchWarningIfNeeded()
+log("")
+switch finalState {
+case .firstConflict(let branch):
+    log("Checked out the first conflict for you to fix: \(LogColor.red.terminalString)\(branch.name)\(LogColor.blue.terminalString) --> \(branch.target)")
+case .defaultBranch:
     log("Returned to \(defaultBranchName) (your default branch).")
+case .nothing:
+    log("Skipping final checkout.")
 }
