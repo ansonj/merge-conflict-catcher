@@ -26,7 +26,7 @@ enum DesiredFinalCheckoutState {
 let remote = "origin"
 defaultBranchName = "master"
 let desiredFinalState = DesiredFinalCheckoutState.firstConflict
-let mergeTimeWarningUpperBound: TimeInterval = 2.0
+let mergeTimeWarningUpperBound: TimeInterval = 1.0
 
 let branches: [Branch] = [
     Branch(name: "<#my-fancy-branch#>"),
@@ -108,9 +108,8 @@ run(gitCommand: "fetch --jobs=5 --recurse-submodules", andFailWithDescriptionIfN
 
 var testsComplete: Int = 0
 for branch in branches {
-    run(gitCommand: "checkout --detach \(branch.name)", andFailWithDescriptionIfNeeded: "Checkout detached HEAD at \(branch.name)")
-    run(gitCommand: "merge --ff-only \(branch.remoteName)", andFailWithDescriptionIfNeeded: "Merge \(branch.remoteName) (fast-forward only) to check for new commits on the remote")
-    let mergeCompletionInfo = run(gitCommand: "merge --no-edit \(branch.remoteTarget)")
+    run(gitCommand: "checkout --detach \(branch.remoteTarget)", andFailWithDescriptionIfNeeded: "Checkout detached HEAD at \(branch.remoteTarget)")
+    let mergeCompletionInfo = run(gitCommand: "merge --no-edit \(branch.remoteName)")
     if mergeCompletionInfo.exitStatus != 0 {
         log("Merge conflict detected: \(branch.name) --> \(branch.target)", color: .red)
         mergeResults[branch] = .failed

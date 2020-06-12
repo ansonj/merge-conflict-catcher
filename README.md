@@ -14,7 +14,7 @@ At the moment, the checker script can only be used for one repository at a time 
     ```
     1. Open `checkForMergeConflicts.swift` and edit the customizable section at the top:
         1. Check the remote name and default branch to make sure they match your repository.
-        1. Add the branches you want to check to the array, using the samples as reference. You can specify just the branch name if the branch will merge into your default branch, or you can specify the branch name and its parent branch name.
+        1. Add the branches you want to check to the array, using the samples as reference. You can specify just the branch name if the branch will merge into your default branch, or you can specify the branch name and its parent branch name. The branches must have been pushed to the remote already.
 1. **Run the checker**
     1. `cd` into the repository you want to check.
     1. Execute the Swift script.
@@ -31,11 +31,9 @@ git fetch --jobs=5 --recurse-submodules
 
 for branch in branches {
     # Checkout a detached HEAD.
-    git checkout --detach branch
-    # Check for upstream changes on this branch and fast-forward to the latest version.
-    git merge --ff-only origin/branch
+    git checkout --detach origin/parent-branch
     # Test the merge.
-    git merge --no-edit origin/parent-branch
+    git merge --no-edit origin/branch
     if mergeFailed {
        git merge --abort
     }
